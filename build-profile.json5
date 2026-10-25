@@ -1,0 +1,56 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "C:/Users/danie/DevEcoStudioProjects/HourlyBip/manse.p12",
+          "storePassword": "000000191AF0B189268E742F55E62052B49064E9C855086AAEB09E46CE7B3C83F3AB521720FDC4A98C",
+          "keyAlias": "manse",
+          "keyPassword": "00000019A8E5E21FF1F3E8FE02E6ADF6ED4B4B27A4A61BA0DF9D565574712F49213F1AC10818141558",
+          "signAlg": "SHA256withECDSA",
+          "profile": "C:/Users/danie/Downloads/mansebipRelease.p7b",
+          "certpath": "C:/Users/danie/Downloads/mansebip.cer"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "6.1.1(24)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
