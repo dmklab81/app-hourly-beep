@@ -1,0 +1,265 @@
+<title>HourlyBip Privacy Policy</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap">
+
+<style>
+  /* Layout: single-column document, max-width prose, branded header */
+  :root {
+    --bg:        #ffffff;
+    --surface:   #f5f6fa;
+    --border:    #e2e5ef;
+    --fg:        #1a1c2e;
+    --muted:     #5a5f7a;
+    --accent:    #3a74c8;
+    --accent-bg: #eef3fb;
+    --header-bg: #0f0f1a;
+    --header-fg: #ffffff;
+    --font-head: 'Sora', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0f0f1a;
+      --surface:   #1a1c2e;
+      --border:    #2a2d45;
+      --fg:        #e8eaf4;
+      --muted:     #8890b0;
+      --accent:    #4a90e2;
+      --accent-bg: #1a2540;
+      --header-bg: #07070f;
+      --header-fg: #e8eaf4;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #0f0f1a;
+    --surface:   #1a1c2e;
+    --border:    #2a2d45;
+    --fg:        #e8eaf4;
+    --muted:     #8890b0;
+    --accent:    #4a90e2;
+    --accent-bg: #1a2540;
+    --header-bg: #07070f;
+    --header-fg: #e8eaf4;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--header-bg);
+    margin-left: max(-16px, calc(-1 * env(safe-area-inset-left, 0px)));
+    margin-right: max(-16px, calc(-1 * env(safe-area-inset-right, 0px)));
+    padding: 32px max(24px, env(safe-area-inset-left, 0px));
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .app-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1e2a5e 0%, #3a2a7a 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .header-text { color: var(--header-fg); }
+  .header-text h1 {
+    font-family: var(--font-head);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .header-text p {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  /* ── Content wrapper ── */
+  .content {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── Last updated chip ── */
+  .updated-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+
+  /* ── Summary box ── */
+  .summary-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 36px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .summary-box strong { color: var(--fg); }
+
+  /* ── Sections ── */
+  section { margin-bottom: 36px; }
+
+  h2 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fg);
+    text-wrap: balance;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  p { margin-bottom: 12px; color: var(--fg); }
+  p:last-child { margin-bottom: 0; }
+
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  ul li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+  }
+  ul li::before {
+    content: "✓";
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Contact block ── */
+  .contact-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-size: 0.9rem;
+  }
+  .contact-block p { color: var(--muted); margin-bottom: 8px; }
+  .contact-email {
+    font-weight: 600;
+    color: var(--accent);
+    font-family: monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+
+<header class="site-header">
+  <div class="app-icon">🕐</div>
+  <div class="header-text">
+    <h1>HourlyBip</h1>
+    <p>Privacy Policy</p>
+  </div>
+</header>
+
+<main class="content">
+  <div class="updated-chip">Last updated: October 25, 2026</div>
+
+  <div class="summary-box">
+    <strong>Short version:</strong> HourlyBip does not collect, store, or transmit any personal data. All app settings are stored locally on your device only.
+  </div>
+
+  <section>
+    <h2>1. Overview</h2>
+    <p>HourlyBip ("the app") is a wearable application developed by <strong>DMK3</strong> that emits audible beeps and/or vibration alerts at configurable hourly and half-hourly intervals.</p>
+    <p>We are committed to protecting your privacy. This policy explains how the app handles information on your device.</p>
+  </section>
+
+  <section>
+    <h2>2. Data We Do Not Collect</h2>
+    <p>HourlyBip does not collect any personal information. Specifically, the app does not:</p>
+    <ul>
+      <li>Collect your name, email address, or any identifying information</li>
+      <li>Access your location, contacts, calendar, or health data</li>
+      <li>Transmit any data to remote servers or third parties</li>
+      <li>Use analytics, crash-reporting, or advertising SDKs</li>
+      <li>Require account registration or login</li>
+      <li>Access the internet in any way</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>3. Data Stored Locally on Your Device</h2>
+    <p>The app saves your preferences (enabled state, volume, tone frequency, bedtime window, and pulse counts) in local storage on your device. This data:</p>
+    <ul>
+      <li>Never leaves your device</li>
+      <li>Is not accessible to DMK3 or any third party</li>
+      <li>Is deleted when you uninstall the app</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. Permissions Used</h2>
+    <p>The app requests the following permission:</p>
+    <ul>
+      <li><strong>VIBRATE</strong> — used solely to trigger haptic feedback alongside audio beeps. No device or user data is read through this permission.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. Children's Privacy</h2>
+    <p>HourlyBip does not knowingly collect any information from anyone, including children under the age of 13. Because no data is collected at all, the app is safe for use by any age group.</p>
+  </section>
+
+  <section>
+    <h2>6. Changes to This Policy</h2>
+    <p>If this policy is updated in the future, the new version will be published at this URL and the "Last updated" date above will be revised. Continued use of the app after any changes constitutes acceptance of the updated policy.</p>
+  </section>
+
+  <section>
+    <h2>7. Contact</h2>
+    <div class="contact-block">
+      <p>Questions about this privacy policy? Contact us at:</p>
+      <span class="contact-email">contato@dmk3.com.br</span>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2026 DMK3 &mdash; HourlyBip for HarmonyOS Wearable
+  </footer>
+</main>
