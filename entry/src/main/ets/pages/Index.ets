@@ -23,12 +23,12 @@ struct IndexPage {
 
   async aboutToAppear(): Promise<void> {
     this.settings = await loadSettings(this.context)
-    const startParts = this.settings.bedtimeStart.split(':')
-    this.bedStartHour = Number(startParts[0])
-    this.bedStartMin  = Math.round(Number(startParts[1]) / 10) * 10 % 60
-    const endParts = this.settings.bedtimeEnd.split(':')
-    this.bedEndHour = Number(endParts[0])
-    this.bedEndMin  = Math.round(Number(endParts[1]) / 10) * 10 % 60
+    const sp = this.settings.bedtimeStart.split(':')
+    this.bedStartHour = Number(sp[0])
+    this.bedStartMin  = Math.round(Number(sp[1]) / 10) * 10 % 60
+    const ep = this.settings.bedtimeEnd.split(':')
+    this.bedEndHour = Number(ep[0])
+    this.bedEndMin  = Math.round(Number(ep[1]) / 10) * 10 % 60
     this.startTimer()
   }
 
@@ -39,18 +39,14 @@ struct IndexPage {
   }
 
   aboutToDisappear(): void {
-    if (this.intervalId !== -1) {
-      clearInterval(this.intervalId)
-      this.intervalId = -1
-    }
+    if (this.intervalId !== -1) { clearInterval(this.intervalId); this.intervalId = -1 }
   }
 
   private startTimer(): void {
     if (this.intervalId !== -1) clearInterval(this.intervalId)
     this.intervalId = setInterval(async () => {
       const now = new Date()
-      const m = now.getMinutes()
-      const s = now.getSeconds()
+      const m = now.getMinutes(), s = now.getSeconds()
       if ((m === 0 || m === 30) && s < 5) await doBip(this.settings)
     }, 5000)
   }
@@ -75,68 +71,33 @@ struct IndexPage {
 
   private pad(n: number): string { return n < 10 ? `0${n}` : `${n}` }
 
-  @Builder
-  TimePicker2(
-    hour: number,
-    min: number,
-    onHour: (h: number) => void,
-    onMin: (m: number) => void,
-    minScroller: Scroller
-  ) {
-    Row({ space: 10 }) {
-      // ── Hora ──
-      Column({ space: 4 }) {
-        Button('+')
-          .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
-          .backgroundColor('#2A2A3C').borderRadius(8)
-          .onClick(() => onHour((hour + 1) % 24))
-        Text(this.pad(hour))
-          .fontSize(34).fontColor('#FFFFFF').fontWeight(FontWeight.Bold)
-          .width(58).textAlign(TextAlign.Center)
-        Button('-')
-          .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
-          .backgroundColor('#2A2A3C').borderRadius(8)
-          .onClick(() => onHour((hour + 23) % 24))
-      }
+  // Avança minuto; retorna true se virou a hora
+  private incMin(isStart: boolean): void {
+    const cur = isStart ? this.bedStartMin : this.bedEndMin
+    const next = (cur + 10) % 60
+    if (isStart) {
+      if (next === 0) this.bedStartHour = (this.bedStartHour + 1) % 24
+      this.bedStartMin = next
+      this.startMinScroller.scrollToIndex(next / 10, false)
+    } else {
+      if (next === 0) this.bedEndHour = (this.bedEndHour + 1) % 24
+      this.bedEndMin = next
+      this.endMinScroller.scrollToIndex(next / 10, false)
+    }
+  }
 
-      Text(':').fontSize(34).fontColor('#666688').margin({ bottom: 4 })
-
-      // ── Minuto (List com coroa) ──
-      Column({ space: 4 }) {
-        Button('+')
-          .width(50).height(28).fontSize(16).fontColor('#4A90E2')
-          .backgroundColor('#2A2A3C').borderRadius(8)
-          .onClick(() => {
-            const next = (min + 10) % 60
-            onMin(next)
-            minScroller.scrollToIndex(next / 10, false, ScrollAlign.CENTER)
-          })
-        List({ scroller: minScroller, initialIndex: min / 10 }) {
-          ForEach(MINS, (m: number) => {
-            ListItem() {
-              Text(this.pad(m))
-                .fontSize(34).fontWeight(FontWeight.Bold)
-                .fontColor('#4A90E2')
-                .width(58).height(44).textAlign(TextAlign.Center)
-            }
-          }, (m: number) => `${m}`)
-        }
-        .width(58).height(44)
-        .scrollBar(BarState.Off)
-        .scrollSnapAlign(ScrollSnapAlign.CENTER)
-        .digitalCrownSensitivity(CrownSensitivity.MEDIUM)
-        .focusable(true)
-        .defaultFocus(true)
-        .onScrollIndex((first: number) => { onMin(MINS[first]) })
-        Button('-')
-          .width(50).height(28).fontSize(16).fontColor('#4A90E2')
-          .backgroundColor('#2A2A3C').borderRadius(8)
-          .onClick(() => {
-            const prev = (min - 10 + 60) % 60
-            onMin(prev)
-            minScroller.scrollToIndex(prev / 10, false, ScrollAlign.CENTER)
-          })
-      }
+  // Recua minuto; retorna true se voltou a hora
+  private decMin(isStart: boolean): void {
+    const cur = isStart ? this.bedStartMin : this.bedEndMin
+    const prev = (cur - 10 + 60) % 60
+    if (isStart) {
+      if (prev === 50) this.bedStartHour = (this.bedStartHour + 23) % 24
+      this.bedStartMin = prev
+      this.startMinScroller.scrollToIndex(prev / 10, false)
+    } else {
+      if (prev === 50) this.bedEndHour = (this.bedEndHour + 23) % 24
+      this.bedEndMin = prev
+      this.endMinScroller.scrollToIndex(prev / 10, false)
     }
   }
 
@@ -244,12 +205,61 @@ struct IndexPage {
       if (this.showStartPicker) {
         Column({ space: 0 }) {
           Text('Start').fontSize(14).fontColor('#CCCCCC').margin({ top: 14 })
-          this.TimePicker2(
-            this.bedStartHour, this.bedStartMin,
-            (h) => { this.bedStartHour = h },
-            (m) => { this.bedStartMin = m },
-            this.startMinScroller
-          )
+
+          Row({ space: 10 }) {
+            // Hora
+            Column({ space: 4 }) {
+              Button('+')
+                .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.bedStartHour = (this.bedStartHour + 1) % 24 })
+              Text(this.pad(this.bedStartHour))
+                .fontSize(34).fontColor('#FFFFFF').fontWeight(FontWeight.Bold)
+                .width(58).textAlign(TextAlign.Center)
+              Button('-')
+                .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.bedStartHour = (this.bedStartHour + 23) % 24 })
+            }
+
+            Text(':').fontSize(34).fontColor('#666688').margin({ bottom: 4 })
+
+            // Minuto (coroa circular)
+            Column({ space: 4 }) {
+              Button('+')
+                .width(50).height(28).fontSize(16).fontColor('#4A90E2')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.incMin(true) })
+              List({ scroller: this.startMinScroller, initialIndex: this.bedStartMin / 10 }) {
+                ForEach(MINS, (m: number) => {
+                  ListItem() {
+                    Text(this.pad(m))
+                      .fontSize(34).fontWeight(FontWeight.Bold).fontColor('#4A90E2')
+                      .width(58).height(44).textAlign(TextAlign.Center)
+                  }
+                }, (m: number) => `${m}`)
+              }
+              .width(58).height(44)
+              .scrollBar(BarState.Off)
+              .scrollSnapAlign(ScrollSnapAlign.CENTER)
+              .digitalCrownSensitivity(CrownSensitivity.MEDIUM)
+              .focusable(true).defaultFocus(true)
+              .onScrollIndex((first: number) => {
+                const newMin = MINS[first]
+                if (this.bedStartMin === 50 && newMin === 0) {
+                  this.bedStartHour = (this.bedStartHour + 1) % 24
+                } else if (this.bedStartMin === 0 && newMin === 50) {
+                  this.bedStartHour = (this.bedStartHour + 23) % 24
+                }
+                this.bedStartMin = newMin
+              })
+              Button('-')
+                .width(50).height(28).fontSize(16).fontColor('#4A90E2')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.decMin(true) })
+            }
+          }
+
           Row({ space: 10 }) {
             Button('Cancel').width('42%').height(34).fontSize(13)
               .backgroundColor('#3A3A5C').borderRadius(10)
@@ -258,26 +268,74 @@ struct IndexPage {
               .backgroundColor('#4A90E2').borderRadius(10)
               .onClick(async () => {
                 this.showStartPicker = false
-                await this.persist(this.copyWith('bedtimeStart', `${this.pad(this.bedStartHour)}:${this.pad(this.bedStartMin)}`))
+                await this.persist(this.copyWith('bedtimeStart',
+                  `${this.pad(this.bedStartHour)}:${this.pad(this.bedStartMin)}`))
               })
           }.margin({ bottom: 14 })
         }
-        .width('100%').height('100%')
-        .backgroundColor('#0F0F1A')
-        .justifyContent(FlexAlign.SpaceBetween)
-        .alignItems(HorizontalAlign.Center)
+        .width('100%').height('100%').backgroundColor('#0F0F1A')
+        .justifyContent(FlexAlign.SpaceBetween).alignItems(HorizontalAlign.Center)
       }
 
       // ── Picker End ──
       if (this.showEndPicker) {
         Column({ space: 0 }) {
           Text('End').fontSize(14).fontColor('#CCCCCC').margin({ top: 14 })
-          this.TimePicker2(
-            this.bedEndHour, this.bedEndMin,
-            (h) => { this.bedEndHour = h },
-            (m) => { this.bedEndMin = m },
-            this.endMinScroller
-          )
+
+          Row({ space: 10 }) {
+            // Hora
+            Column({ space: 4 }) {
+              Button('+')
+                .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.bedEndHour = (this.bedEndHour + 1) % 24 })
+              Text(this.pad(this.bedEndHour))
+                .fontSize(34).fontColor('#FFFFFF').fontWeight(FontWeight.Bold)
+                .width(58).textAlign(TextAlign.Center)
+              Button('-')
+                .width(50).height(28).fontSize(16).fontColor('#CCCCCC')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.bedEndHour = (this.bedEndHour + 23) % 24 })
+            }
+
+            Text(':').fontSize(34).fontColor('#666688').margin({ bottom: 4 })
+
+            // Minuto (coroa circular)
+            Column({ space: 4 }) {
+              Button('+')
+                .width(50).height(28).fontSize(16).fontColor('#4A90E2')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.incMin(false) })
+              List({ scroller: this.endMinScroller, initialIndex: this.bedEndMin / 10 }) {
+                ForEach(MINS, (m: number) => {
+                  ListItem() {
+                    Text(this.pad(m))
+                      .fontSize(34).fontWeight(FontWeight.Bold).fontColor('#4A90E2')
+                      .width(58).height(44).textAlign(TextAlign.Center)
+                  }
+                }, (m: number) => `${m}`)
+              }
+              .width(58).height(44)
+              .scrollBar(BarState.Off)
+              .scrollSnapAlign(ScrollSnapAlign.CENTER)
+              .digitalCrownSensitivity(CrownSensitivity.MEDIUM)
+              .focusable(true).defaultFocus(true)
+              .onScrollIndex((first: number) => {
+                const newMin = MINS[first]
+                if (this.bedEndMin === 50 && newMin === 0) {
+                  this.bedEndHour = (this.bedEndHour + 1) % 24
+                } else if (this.bedEndMin === 0 && newMin === 50) {
+                  this.bedEndHour = (this.bedEndHour + 23) % 24
+                }
+                this.bedEndMin = newMin
+              })
+              Button('-')
+                .width(50).height(28).fontSize(16).fontColor('#4A90E2')
+                .backgroundColor('#2A2A3C').borderRadius(8)
+                .onClick(() => { this.decMin(false) })
+            }
+          }
+
           Row({ space: 10 }) {
             Button('Cancel').width('42%').height(34).fontSize(13)
               .backgroundColor('#3A3A5C').borderRadius(10)
@@ -286,14 +344,13 @@ struct IndexPage {
               .backgroundColor('#4A90E2').borderRadius(10)
               .onClick(async () => {
                 this.showEndPicker = false
-                await this.persist(this.copyWith('bedtimeEnd', `${this.pad(this.bedEndHour)}:${this.pad(this.bedEndMin)}`))
+                await this.persist(this.copyWith('bedtimeEnd',
+                  `${this.pad(this.bedEndHour)}:${this.pad(this.bedEndMin)}`))
               })
           }.margin({ bottom: 14 })
         }
-        .width('100%').height('100%')
-        .backgroundColor('#0F0F1A')
-        .justifyContent(FlexAlign.SpaceBetween)
-        .alignItems(HorizontalAlign.Center)
+        .width('100%').height('100%').backgroundColor('#0F0F1A')
+        .justifyContent(FlexAlign.SpaceBetween).alignItems(HorizontalAlign.Center)
       }
 
     }
